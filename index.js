@@ -13,6 +13,9 @@ const beautifyJSON = (str) =>{
     const newStr = str0.split('"').join(' ')
         .split('String : ').join("String: '")
         .split(" , sum").join("', sum")
+        .split(" , diff").join("', diff")
+        .split(" , product").join("', product")
+        .split(" , quotient").join("', quotient")        
         .split(' :').join(': ')
         .split(',').join(', <br>')
         .split(': {').join(`: {${blockquote}`)
@@ -23,7 +26,7 @@ const beautifyJSON = (str) =>{
 
 // --------- SERVER FOR CLUELESS USER
 app.get('/', (req,res)=>{
-    res.send(`You may only request data using /math/ or /gif/ ...`);
+    res.send(`You may only request data using /math or /gif ...`);
 });
 
 // --------- SERVER FOR MATH ROUTES ---------
@@ -63,13 +66,94 @@ app.get('/math/add', (req, res) =>{
     res.send( beautifyJSON(str) );
 });
 
-// app.get();
+// --------- SUBTRACT PATH
+app.get('/math/subtract', (req, res)=>{
+    const keys = Object.keys(req.query);
+    const nums = [];
 
-// app.get();
+    keys.forEach(key =>{
+        const num = parseInt(req.query[key]);
+        nums.push(num);
+    });
 
-// app.get();
+    const json = {};
 
-// --------- SERVER FOR GIF SEARCH ROUTE
+    if (nums.includes(NaN)){
+        json.error = "'You passed a non-number value into the parameters.'";
+    } else {
+        json.input = {};
+        keys.forEach( (key, i) =>{
+            json.input[key] = nums[i];
+        });
+
+        json.subtractString = nums.join(' - ');
+
+        [...args] = nums;
+        json.difference = subtract(...args);
+    }
+    const str = JSON.stringify(json);
+    res.send( beautifyJSON(str) );
+});
+
+// --------- MULTIPLY PATH
+app.get('/math/multiply', (req, res)=>{
+    const keys = Object.keys(req.query);
+    const nums = [];
+
+    keys.forEach(key =>{
+        const num = parseInt(req.query[key]);
+        nums.push(num);
+    });
+
+    const json = {};
+
+    if (nums.includes(NaN)){
+        json.error = "'You passed a non-number value into the parameters.'";
+    } else {
+        json.input = {};
+        keys.forEach( (key, i) =>{
+            json.input[key] = nums[i];
+        });
+
+        json.productString = nums.join(' * ');
+
+        [...args] = nums;
+        json.product = multiply(...args);
+    }
+    const str = JSON.stringify(json);
+    res.send( beautifyJSON(str) );
+});
+
+// --------- DIVIDE PATH
+app.get('/math/divide', (req, res) =>{
+    const keys = Object.keys(req.query);
+    const nums = [];
+
+    keys.forEach(key =>{
+        const num = parseInt(req.query[key]);
+        nums.push(num);
+    });
+
+    const json = {};
+
+    if (nums.includes(NaN)){
+        json.error = "'You passed a non-number value into the parameters.'";
+    } else {
+        json.input = {};
+        keys.forEach( (key, i) =>{
+            json.input[key] = nums[i];
+        });
+
+        json.divideString = nums.join(' / ');
+
+        [...args] = nums;
+        json.quotient = divide(...args);
+    }
+    const str = JSON.stringify(json);
+    res.send( beautifyJSON(str) );
+});
+
+// --------- SERVER FOR GIF SEARCH ROUTE ---------
 // app.get();
 
 // --------- SERVER PORT CONNECTION
