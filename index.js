@@ -5,7 +5,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-// --------- HELPER FUNCTION
+// --------- HELPER FUNCTIONS
 const beautifyJSON = (str) =>{
     const blockquote = `<blockquote style='margin-inline-start:20px;margin-block-start:0em;margin-block-end:0em'>`;
     const str0 = `{${blockquote} ${str.slice(1,-1)} </blockquote> }`;
@@ -22,6 +22,31 @@ const beautifyJSON = (str) =>{
         .split('},').join('</blockquote> },')
     
     return newStr;
+}
+const beautifyArray = (arr) =>{
+    const font = 'font-size:6px';
+    const urls = arr.reduce( (acc, url) =>{
+        return acc + `
+        <a href='${url}' style='text-decoration:none;color:black'> 
+            "${url}", 
+        </a> 
+        <br>
+        `;
+    }, '');
+    
+    const webResult = `
+        <span style='${font}'> 
+            [ 
+        </span> 
+        <br> 
+            <blockquote style='${font};margin-inline-start:20px;margin-block-start:0em;margin-block-end:0em'> 
+                ${urls} 
+            </blockquote> 
+        <span style='${font}'>
+            ] 
+        </span>`;
+
+    return webResult;
 }
 
 // --------- SERVER FOR CLUELESS USER
@@ -41,6 +66,8 @@ app.get('/math', (req,res) =>{
 app.get('/math/add', (req, res) =>{
     const keys = Object.keys(req.query);
     const nums = [];
+
+    if (keys.length === 0) res.send(`You didn't pass in any arguments!!`);
 
     keys.forEach(key =>{
         const num = parseInt(req.query[key]);
@@ -71,6 +98,8 @@ app.get('/math/subtract', (req, res)=>{
     const keys = Object.keys(req.query);
     const nums = [];
 
+    if (keys.length === 0) res.send(`You didn't pass in any arguments!!`);
+
     keys.forEach(key =>{
         const num = parseInt(req.query[key]);
         nums.push(num);
@@ -99,6 +128,8 @@ app.get('/math/subtract', (req, res)=>{
 app.get('/math/multiply', (req, res)=>{
     const keys = Object.keys(req.query);
     const nums = [];
+
+    if (keys.length === 0) res.send(`You didn't pass in any arguments!!`);
 
     keys.forEach(key =>{
         const num = parseInt(req.query[key]);
@@ -129,6 +160,8 @@ app.get('/math/divide', (req, res) =>{
     const keys = Object.keys(req.query);
     const nums = [];
 
+    if (keys.length === 0) res.send(`You didn't pass in any arguments!!`);
+
     keys.forEach(key =>{
         const num = parseInt(req.query[key]);
         nums.push(num);
@@ -154,7 +187,24 @@ app.get('/math/divide', (req, res) =>{
 });
 
 // --------- SERVER FOR GIF SEARCH ROUTE ---------
-// app.get();
+app.get('/gif', (req, res)=>{
+
+    const [key] = Object.keys(req.query);
+    const searchTerm = req.query[key];
+
+    if (!searchTerm){
+        const error = `Please specify search query!
+        <br> <br>
+        in this format:
+        <br>
+        gif?s= whatever you want to search`;
+        res.send(error);
+    } else {
+        getGifUrls(searchTerm.trim(), (arr) =>{
+            res.send( beautifyArray(arr) );
+        });
+    }
+});
 
 // --------- SERVER PORT CONNECTION
 app.listen(port, ()=>{
